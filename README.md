@@ -58,23 +58,28 @@ export OPENAI_API_KEY='your-api-key-here'
 
 ## 🎯 Quick Start
 
-### Process a Textbook
+**Option 1: Using convenience script (recommended)**
 ```bash
+# Linux/Mac
+./run.sh process textbook.pdf --textbook-name "US History"
+./run.sh chat us_history_textbook
+
+# Windows
+run.bat process textbook.pdf --textbook-name "US History"
+run.bat chat us_history_textbook
+```
+
+**Option 2: Manual activation**
+```bash
+# Activate environment first
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate     # Windows
+
+# Then run commands
 python cli.py process textbook.pdf --textbook-name "US History"
-```
-
-### Start Interactive Q&A
-```bash
 python cli.py chat us_history_textbook
-```
-
-### Ask Single Question
-```bash
 python cli.py ask us_history_textbook "What caused the Civil War?"
-```
-
-### List Available Textbooks
-```bash
 python cli.py list
 ```
 
