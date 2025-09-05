@@ -51,10 +51,15 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-3. **Set OpenAI API key:**
+3. **Set up API keys securely:**
 ```bash
-export OPENAI_API_KEY='your-api-key-here'
+python setup_keys.py
 ```
+
+This interactive setup provides multiple secure options:
+- **System Keyring** (most secure) - OS-level encrypted storage
+- **.env file** (convenient) - Local development file (git-ignored)
+- **Environment variables** (production) - Traditional method
 
 ## 🎯 Quick Start
 

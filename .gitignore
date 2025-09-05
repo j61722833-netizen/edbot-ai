@@ -76,3 +76,20 @@ tmp/
 
 # History files
 .Rhistory
+
+# Security - API Keys and Sensitive Data
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+config/local/
+api_keys.json
+credentials.json
+
+# EdBot AI specific
+vector_indexes/
+outputs/
+extracted_text/*.json
+!extracted_text/sample_extraction.json

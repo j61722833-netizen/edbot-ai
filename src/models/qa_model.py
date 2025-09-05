@@ -89,33 +89,39 @@ class TextbookQA:
     
     def __init__(self,
                  vector_store: VectorStore,
-                 model_name: str = "gpt-4-turbo-preview",
-                 temperature: float = 0.1,
-                 max_tokens: int = 1000,
+                 model_name: Optional[str] = None,
+                 temperature: Optional[float] = None,
+                 max_tokens: Optional[int] = None,
                  openai_api_key: Optional[str] = None):
         """Initialize Q&A system.
         
         Args:
             vector_store: Configured VectorStore instance
-            model_name: OpenAI model name
-            temperature: LLM temperature (0-1)
-            max_tokens: Maximum tokens in response
-            openai_api_key: OpenAI API key
+            model_name: OpenAI model name (uses config default if None)
+            temperature: LLM temperature (uses config default if None)
+            max_tokens: Maximum tokens in response (uses config default if None)
+            openai_api_key: OpenAI API key (uses secure config if None)
         """
         if not ChatOpenAI:
             raise ImportError("LangChain OpenAI not installed. Install with: pip install langchain-openai")
         
+        # Import secure config
+        from ..config.settings import get_config
+        config = get_config()
+        
         self.vector_store = vector_store
         
-        # Initialize OpenAI model
-        api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+        # Initialize OpenAI model with secure configuration
+        api_key = openai_api_key or config.openai_api_key
         if not api_key:
-            raise ValueError("OpenAI API key required")
+            raise ValueError(
+                "OpenAI API key required. Run: python setup_keys.py"
+            )
         
         self.llm = ChatOpenAI(
-            model=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
+            model=model_name or config.qa_model,
+            temperature=temperature if temperature is not None else config.temperature,
+            max_tokens=max_tokens or config.max_tokens,
             openai_api_key=api_key
         )
         

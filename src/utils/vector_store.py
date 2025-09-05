@@ -30,31 +30,38 @@ class VectorStore:
     """Vector store for textbook chunks with citation support."""
     
     def __init__(self, 
-                 index_path: str = "./vector_indexes",
-                 embeddings_model: str = "text-embedding-3-large",
+                 index_path: Optional[str] = None,
+                 embeddings_model: Optional[str] = None,
                  openai_api_key: Optional[str] = None):
         """Initialize vector store.
         
         Args:
-            index_path: Directory to store FAISS indexes
-            embeddings_model: OpenAI embeddings model name
-            openai_api_key: OpenAI API key (or from environment)
+            index_path: Directory to store FAISS indexes (uses config default if None)
+            embeddings_model: OpenAI embeddings model name (uses config default if None)
+            openai_api_key: OpenAI API key (uses secure config if None)
         """
         if not faiss:
             raise ImportError("FAISS not installed. Install with: pip install faiss-cpu")
         if not OpenAIEmbeddings:
             raise ImportError("LangChain OpenAI not installed. Install with: pip install langchain-openai")
         
-        self.index_path = Path(index_path)
+        # Import secure config
+        from ..config.settings import get_config
+        config = get_config()
+        
+        # Use secure configuration
+        self.index_path = Path(index_path or config.faiss_index_path)
         self.index_path.mkdir(parents=True, exist_ok=True)
         
-        # Initialize embeddings
-        api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+        # Initialize embeddings with secure API key
+        api_key = openai_api_key or config.openai_api_key
         if not api_key:
-            raise ValueError("OpenAI API key required. Set OPENAI_API_KEY environment variable.")
+            raise ValueError(
+                "OpenAI API key required. Run: python setup_keys.py"
+            )
         
         self.embeddings = OpenAIEmbeddings(
-            model=embeddings_model,
+            model=embeddings_model or config.embeddings_model,
             openai_api_key=api_key
         )
         

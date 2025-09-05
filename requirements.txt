@@ -13,3 +13,4 @@ faiss-cpu
 openai
 numpy
 tiktoken
+keyring>=23.0.0
