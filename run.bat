@@ -8,6 +8,15 @@ if not exist "venv" (
     exit /b 1
 )
 
+REM Load .env file if it exists (for environment variables)
+if exist ".env" (
+    for /f "usebackq delims=" %%a in (".env") do (
+        for /f "tokens=1,2 delims==" %%b in ("%%a") do (
+            if not "%%b"=="" if not "%%b:~0,1%"=="#" set "%%b=%%c"
+        )
+    )
+)
+
 REM Activate virtual environment and run CLI
 call venv\Scripts\activate
 python cli.py %*
