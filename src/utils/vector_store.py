@@ -99,9 +99,33 @@ class VectorStore:
             # Store original chunk for citation
             self.chunk_metadata[chunk.chunk_id] = chunk
         
-        # Create FAISS vector store
+        # Create FAISS vector store in batches to handle token limits
         logger.info("Generating embeddings and creating FAISS index...")
-        self.vector_store = FAISS.from_documents(documents, self.embeddings)
+        
+        batch_size = 100  # Process in smaller batches to avoid token limits
+        if len(documents) <= batch_size:
+            # Small number of documents, process all at once
+            self.vector_store = FAISS.from_documents(documents, self.embeddings)
+        else:
+            # Process in batches and merge
+            logger.info(f"Processing {len(documents)} documents in batches of {batch_size}")
+            
+            # Create initial vector store with first batch
+            first_batch = documents[:batch_size]
+            self.vector_store = FAISS.from_documents(first_batch, self.embeddings)
+            
+            # Add remaining documents in batches
+            for i in range(batch_size, len(documents), batch_size):
+                batch_end = min(i + batch_size, len(documents))
+                batch = documents[i:batch_end]
+                
+                logger.info(f"Processing batch {i//batch_size + 1}: documents {i+1}-{batch_end}")
+                
+                # Create temporary vector store for this batch
+                temp_store = FAISS.from_documents(batch, self.embeddings)
+                
+                # Merge with main vector store
+                self.vector_store.merge_from(temp_store)
         
         # Save index and metadata
         self._save_index(index_name)
